@@ -1,46 +1,33 @@
-import getNode from '../util.js';
-import Teleprompter from './Teleprompter.js';
+import getNode from "../util.js";
+import Teleprompter from "./Teleprompter.js";
 
 class MusicPlayer {
-  constructor (playlist) {
+  constructor() {
     this.isPlaying = false;
-    this.playlist = playlist;
-    this.currentPlaylist = playlist;
     this.currentTrack = null;
     this.audioEl = new Audio();
     this.progressTimer = null;
     // control panel
-    this.playBtn = getNode('.js-start-btn');
-    this.prevBtn = getNode('.js-prev-btn');
-    this.nextBtn = getNode('.js-next-btn');
-    this.loopBtn = getNode('.js-loop-btn');
-    this.repeatBtn = getNode('.js-repeat-btn');
-    this.randomBtn = getNode('.js-random-btn');
-    this.progressBar = getNode('.js-progress-bar');
-    this.playerBg = getNode('.js-player-bg');
+    this.playBtn = getNode(".js-start-btn");
+    this.prevBtn = getNode(".js-prev-btn");
+    this.nextBtn = getNode(".js-next-btn");
+    this.loopBtn = getNode(".js-loop-btn");
+    this.repeatBtn = getNode(".js-repeat-btn");
+    this.randomBtn = getNode(".js-random-btn");
+    this.progressBar = getNode(".js-progress-bar");
+    this.playerBg = getNode(".js-player-bg");
 
-    this.cover = getNode('.js-cover');
-    this.trackTitle = getNode('.js-song-title');
-    this.artistName = getNode('.js-artist-name');
+    this.cover = getNode(".js-cover");
+    this.trackTitle = getNode(".js-song-title");
+    this.artistName = getNode(".js-artist-name");
 
     // track list
-    this.listPage = getNode('.js-track-list');
-
-    // playlist
-    this.randomList = this.shuffleArray(this.playlist);
-    this.repeatOneList = [this.currentTrack];
-    this.loopList = this.playlist;
-
-    // default mode
-    this.playMode = 'loop'; // single loop, loop, random
+    this.listPage = getNode(".js-track-list");
 
     // prompter
     this.prompter = null;
-
-
-
   }
-  setTrack (songID) {
+  setTrack(songID) {
     this.currentTrack = this.getTrack(songID);
     this.audioEl.src = this.currentTrack.path;
     this.audioEl.currentTime = 0;
@@ -50,14 +37,20 @@ class MusicPlayer {
     this.setTrackInfo(this.currentTrack);
     this.setCurrentItem(songID);
 
-    this.prompter = new Teleprompter(this.currentTrack.lyrics, this.currentTrack.name, getNode('.js-lyrics-container'));
+    this.prompter = new Teleprompter(
+      this.currentTrack.lyrics,
+      this.currentTrack.name,
+      getNode(".js-lyrics-container")
+    );
   }
 
-  playTrack () {
+  playTrack() {
     const that = this;
     that.isPlaying = true;
     that.audioEl.play();
-    let img = Array.from(that.playBtn.childNodes).filter(child => child.tagName === 'IMG')[0];
+    let img = Array.from(that.playBtn.childNodes).filter(
+      (child) => child.tagName === "IMG"
+    )[0];
     img.src = "./assets/icon/ic_pause.png";
     that.updateProgressBar();
 
@@ -66,9 +59,9 @@ class MusicPlayer {
     }
   }
 
-  playNext () {
+  playNext() {
     const that = this;
-    function getNextSongId () {
+    function getNextSongId() {
       for (let i = 0; i < that.currentPlaylist.length; i++) {
         if (that.currentPlaylist[i].id === that.currentTrack.id) {
           if (that.currentPlaylist[i + 1] !== undefined) {
@@ -83,9 +76,9 @@ class MusicPlayer {
     that.playTrack();
   }
 
-  playPrev () {
+  playPrev() {
     const that = this;
-    function getPrevSongId () {
+    function getPrevSongId() {
       for (let i = 0; i < that.currentPlaylist.length; i++) {
         if (that.currentPlaylist[i].id === that.currentTrack.id) {
           if (that.currentPlaylist[i - 1] !== undefined) {
@@ -99,32 +92,42 @@ class MusicPlayer {
     that.setTrack(getPrevSongId());
     that.playTrack();
   }
-  setTrackCurrentTime (time) {
+  setTrackCurrentTime(time) {
     const that = this;
     that.stopTrack();
     that.audioEl.currentTime = time;
     that.playTrack();
   }
-  updateProgressBar () {
+  updateProgressBar() {
     const that = this;
-    let bar = Array.from(that.progressBar.childNodes).filter(child => child.classList !== undefined && child.classList.contains('js-bar'))[0];
-    that.progressTimer = setInterval(function() {
-      bar.setAttribute('style', `width:${that.calculateProgressBar(that.audioEl.currentTime, that.audioEl.duration)}%`);
+    let bar = Array.from(that.progressBar.childNodes).filter(
+      (child) =>
+        child.classList !== undefined && child.classList.contains("js-bar")
+    )[0];
+    that.progressTimer = setInterval(function () {
+      bar.setAttribute(
+        "style",
+        `width:${that.calculateProgressBar(
+          that.audioEl.currentTime,
+          that.audioEl.duration
+        )}%`
+      );
     }, 500);
   }
-  calculateProgressBar (current, total) {
+  calculateProgressBar(current, total) {
     return (current / total) * 100;
   }
-  stopProgressBar () {
+  stopProgressBar() {
     const that = this;
     window.clearInterval(that.progressTimer);
-
   }
 
-  stopTrack () {
+  stopTrack() {
     const that = this;
     that.isPlaying = false;
-    let img = Array.from(that.playBtn.childNodes).filter(child => child.tagName === 'IMG')[0];
+    let img = Array.from(that.playBtn.childNodes).filter(
+      (child) => child.tagName === "IMG"
+    )[0];
     img.src = "./assets/icon/ic_play.png";
     that.audioEl.pause();
     that.stopProgressBar();
@@ -133,70 +136,68 @@ class MusicPlayer {
     }
   }
 
-  getTrackCurrentTime () {
+  getTrackCurrentTime() {
     return this.audioEl.currentTime;
   }
 
-  getTrackDuration () {
+  getTrackDuration() {
     return this.audioEl.duration;
   }
 
-
-
-  getTrack (songID) {
-    return this.playlist.find(song => parseInt(song.id) === parseInt(songID));
+  getTrack(songID) {
+    return this.playlist.find((song) => parseInt(song.id) === parseInt(songID));
   }
-  
-  setCoverArt (song) {
+
+  setCoverArt(song) {
     this.cover.src = song.art;
-    this.playerBg.setAttribute('src', song.art);
+    this.playerBg.setAttribute("src", song.art);
   }
 
-  setTrackInfo (song) {
+  setTrackInfo(song) {
     this.trackTitle.innerText = song.name;
     this.artistName.innerText = song.artist;
   }
 
-  createList () {
+  createList() {
     let that = this;
     let str = "";
     this.playlist.forEach(function (song) {
       str += that.createListItem(song);
-    })
+    });
     this.listPage.innerHTML = str;
   }
 
-  createListItem (song) {
-    return (
-      `<li class="list__item" data-id="${song.id}">
+  createListItem(song) {
+    return `<li class="list__item" data-id="${song.id}">
           <div class="item__content">
             <h3>${song.name}</h3>
             <p>${song.artist}</p>
           </div>
-        </li>`
-    )
+        </li>`;
   }
 
-  setCurrentItem (songID) {
+  setCurrentItem(songID) {
     let that = this;
-    let items = Array.from(document.querySelectorAll('.list__item'));
+    let items = Array.from(document.querySelectorAll(".list__item"));
     items.forEach(function (item) {
-      item.classList.remove('is--current');
+      item.classList.remove("is--current");
     });
-    let current = items.find(item => parseInt(item.dataset.id) === parseInt(songID));
-    current.classList.add('is--current');    
+    let current = items.find(
+      (item) => parseInt(item.dataset.id) === parseInt(songID)
+    );
+    current.classList.add("is--current");
   }
-  
-  setPlayMode (mode) {
+
+  setPlayMode(mode) {
     const that = this;
-    switch(mode) {
-      case 'loop':
-        that.currentPlaylist = that.playlist;
+    switch (mode) {
+      case "loop":
+        that.currentPlaylist = that.loopList;
         break;
-      case 'random':
+      case "random":
         that.currentPlaylist = that.shuffleArray(that.playlist);
         break;
-      case 'repeatOne':
+      case "repeatOne":
         that.currentPlaylist = [that.currentTrack];
         break;
       default:
@@ -205,13 +206,13 @@ class MusicPlayer {
   }
 
   // random playlist
-  shuffleArray (array) {
+  shuffleArray(array) {
     // 從最尾端開始, 向前隨機抽一個, 然後將該隨機抽到的數與尾端交換, 依次從尾端向前排
     let m = array.length;
     let t;
     let i;
     while (m) {
-      m --;
+      m--;
       i = Math.floor(Math.random() * m);
       let t = array[m];
       array[m] = array[i];
@@ -220,17 +221,21 @@ class MusicPlayer {
     return array;
   }
 
-  initialize () {
-    let that = this;
+  initialize(playlist) {
+    const that = this;
+    // set playlist
+    that.playlist = playlist;
+    that.randomList = that.shuffleArray(that.playlist);
+    that.repeatOneList = [that.currentTrack];
+    that.loopList = [...that.playlist];
+
     that.createList();
-    that.setPlayMode('loop');
+    that.setPlayMode("loop");
     that.setTrack(that.currentPlaylist[0].id);
     that.audioEl.currentTime = 0;
     that.updateProgressBar();
 
-
-
-    that.playBtn.addEventListener('click', function (e) {
+    that.playBtn.addEventListener("click", function (e) {
       if (!that.isPlaying) {
         that.playTrack();
       } else {
@@ -239,28 +244,28 @@ class MusicPlayer {
     });
 
     // menu btn
-    that.menuToggle = getNode('.js-menu-btn');
-    that.container = getNode('.js-container');
-    that.container.addEventListener('click', function (e) {
+    that.menuToggle = getNode(".js-menu-btn");
+    that.container = getNode(".js-container");
+    that.container.addEventListener("click", function (e) {
       let page = `current--${e.target.dataset.to}`;
-      let container = getNode('.js-container');
+      let container = getNode(".js-container");
       if (e.target.dataset.to !== undefined) {
-        let classList = ['player', 'lyric', 'list'];
-        classList.forEach(function(className) {
+        let classList = ["player", "lyric", "list"];
+        classList.forEach(function (className) {
           container.classList.remove(`current--${className}`);
-        })
+        });
         container.classList.add(page);
       }
     });
 
     // set track from list
-    that.listPage.addEventListener('click', function (e) {
-      let songItem = e.target.closest('.list__item');
+    that.listPage.addEventListener("click", function (e) {
+      let songItem = e.target.closest(".list__item");
       that.setTrack(songItem.dataset.id);
     });
 
     // progress bar
-    that.progressBar.addEventListener('mousedown', function (e) {
+    that.progressBar.addEventListener("mousedown", function (e) {
       let totalLen = that.progressBar.offsetWidth;
       let newCurrentTime = (e.offsetX / totalLen) * that.audioEl.duration;
       that.setTrackCurrentTime(newCurrentTime);
@@ -268,33 +273,31 @@ class MusicPlayer {
     });
 
     // set play mode
-    let modeBtns = Array.from(document.querySelectorAll('.js-mode-btn'));
+    let modeBtns = Array.from(document.querySelectorAll(".js-mode-btn"));
     modeBtns.forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
+      btn.addEventListener("click", function (e) {
         modeBtns.forEach(function (btn) {
-          btn.classList.remove('is--current');
+          btn.classList.remove("is--current");
         });
-        btn.classList.add('is--current');
+        btn.classList.add("is--current");
         that.setPlayMode(this.dataset.playmode);
-      })
+      });
     });
 
     // play next & play prev
-    that.nextBtn.addEventListener('click', function (e) {
+    that.nextBtn.addEventListener("click", function (e) {
       that.playNext();
     });
 
-    that.prevBtn.addEventListener('click', function(e) {
+    that.prevBtn.addEventListener("click", function (e) {
       that.playPrev();
     });
 
     // song is over
-    that.audioEl.addEventListener('ended', function () {
+    that.audioEl.addEventListener("ended", function () {
       that.prompter.removeAll();
       that.playNext();
     });
-
-
   }
 }
 
